@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html>
+<title>CP Articles</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+<link rel="stylesheet" href="https://www.w3schools.com/lib/w3-theme-blue-grey.css">
+<link rel='stylesheet' href='https://fonts.googleapis.com/css?family=Open+Sans'>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<style>
+body,h1,h2,h3,h4,h5 {font-family: "Raleway", sans-serif}
+</style>
+
+<script>
+function initilize()
+{
+document.getElementById("lang_id").style.visibility = "hidden";
+const Http = new XMLHttpRequest();
+const url='https://api.judge0.com/languages/';
+Http.open("GET", url);
+Http.send();
+
+Http.onreadystatechange = (e) => {
+  var v = "{\"lang\":"+Http.responseText+"}";
+  console.log(v);
+  var arr_ = JSON.parse(v);
+  var i,set="";
+  for(i in arr_.lang)
+  {
+    set+="<a  id=\""+arr_.lang[i].id+"\" onclick=\"getElementById('lang_id').innerHTML = this.id; getElementById('lang').innerHTML ='"+ arr_.lang[i].name+"';\" class=\"w3-bar-item w3-button\">"+ arr_.lang[i].name+"</a>";
+  }
+  document.getElementById("dropdown").innerHTML=set;
+  console.log(set);
+  
+}
+}
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+function rst(){
+  document.getElementById('details').innerHTML = "";
+     document.getElementById('textarea').value = "";
+     document.getElementById('stdin').value = "";
+     document.getElementById('output').value = "";
+     document.getElementById('coutput').value = "";
+     document.getElementById('stderr').value = "";
+     
+     };
+async function run()
+{
+document.getElementById("button").disabled = true;
+document.getElementById("button").innerHTML="Running...";
+const url = 'https://api.judge0.com/submissions';
+var token="";
+console.log(document.getElementById("textarea").value);
+$.post(url,
+    {
+      source_code: String(document.getElementById("textarea").value), 
+       language_id: document.getElementById("lang_id").innerHTML,
+       stdin: String(document.getElementById("stdin").value)
+    },
+    async function(data,status){
+      console.log(data);
+      token=data;
+      console.log("Data: " + data + "\nStatus: " + status);
+      var process=0;
+      
+      while(process==0)
+      {
+      await sleep(1000);
+      const Http = new XMLHttpRequest();
+	const url="https://api.judge0.com/submissions/"+token.token;
+	Http.open("GET", url);
+	Http.send();
+
+	Http.onreadystatechange = (e) => {
+		if(JSON.parse(Http.responseText).status.id>2)
+		{
+			document.getElementById("button").disabled = false;
+            //document.getElementById("button").innerHTML="Run";
+            document.getElementById("button").innerHTML="<i class='fa fa-pencil'>Run";
+			document.getElementById("output").innerHTML=JSON.parse(Http.responseText).stdout;
+			document.getElementById("coutput").innerHTML=JSON.parse(Http.responseText).compile_output;
+			document.getElementById("stderr").innerHTML=JSON.parse(Http.responseText).stderr;
+			
+			document.getElementById("details").innerHTML="Status: "+JSON.parse(Http.responseText).status.description+" <br><br> Time: ("+JSON.parse(Http.responseText).time+")  &nbsp;&nbsp;&nbsp;&nbsp;   Memory: ("+JSON.parse(Http.responseText).memory+")";
+			process=1;
+		}
+		console.log(JSON.parse(Http.responseText).status.id);
+  		console.log(Http.responseText);
+  		}
+  	}
+    });
+    
+}
+</script>
+
+<body class="w3-light-grey" onload="initilize()">
+
+<!--navigation bar-->
+
+<nav class="navbar navbar-expand-lg   navbar-light bg-light" style="position: -webkit-sticky; position: sticky; top: 0; z-index: 999; ">
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo01" aria-controls="navbarTogglerDemo01" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarTogglerDemo01">
+      <a class="navbar-brand" href="#"><b>CP Articles</b></a>
+      <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+        <li class="nav-item">
+          <a class="nav-link" href=""><b>Compiler</b> </a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+
+<!-- Centered Content -->
+<div class="w3-content" style="max-width:1400px; height: 800px;">
+<div  >
+         <div class="w3-card w3-round w3-light-grey">
+            <div class="w3-container w3-padding">
+              <div style="float: top; padding 10px;">
+              
+<div class="w3-bar w3-light-grey">
+
+  <div class="w3-dropdown-hover">
+    <button class="w3-button"   style="background-color:#C0C0C0; color :black" >Select Language:</button>
+    <div class="w3-dropdown-content w3-bar-block w3-card-4" id="dropdown" style="max-height:200px; overflow:auto; ">
+      <a href="#" class="w3-bar-item w3-button">Link 1</a>
+      <a href="#" class="w3-bar-item w3-button">Link 2</a>
+      <a href="#" class="w3-bar-item w3-button">Link 3</a>
+    </div>
+  </div>
+  <h6 id="lang" style="opacity: 0.5; font-style: italic;"> &nbsp; None Selected.</h6>
+  <h5  id="details"></h5>
+  <h6  id="lang_id">NULL</h6>
+</div>
+              <div style="float: left; padding-left:5px;" name="div1">
+             <div><button name ="rrnn" type="button" id="button" onclick="run()" value="" class="w3-button w3-theme" style=" float :right; cursor: pointer; "><i class="fa fa-pencil"></i>Run</button></div>
+              <h6 style="  width: 100%;">Write your code here</h6> 
+              <textarea id="textarea" rows="20" cols="70" style="padding-left:10px;"></textarea>
+              <br><button type="button" id="rset" onclick="rst()" value="" class="w3-button w3-theme" style=" float :right; cursor: pointer; "><i class="fa fa-refresh"></i>Reset</button>
+               </div>
+              </div>
+              <!--<div style="float: left; padding-left:5px;">
+                <h6 style="  width: 100%;">Write your code here</h6>
+                <textarea id="textarea" rows="20" cols="70" ></textarea>
+                <button type="button" id="button" onclick="run()" value="" class="w3-button w3-theme" style=" float :right; "><i class="fa fa-pencil"></i>Run</button>
+                </div>-->
+              
+              <div style="float: right; padding 5px;">
+                <h6 style="  width: 100%;">Stdin</h6>
+                <textarea id="stdin" rows="10" cols="70" style="float: left; border-radius: 10px;"></textarea>
+                </div>
+              <div style="float: right; padding 5px;" >
+                <h6 style=" width: 50%;">Output</h6>
+                <textarea id="output" readonly rows="8" cols="70" style="float: right; border-radius: 10px;"></textarea>
+             </div>              
+             <div><div style="float: right; padding 5px;">
+                <h6 style="  width: 100%;">Compile Output:</h6>
+                <textarea id="coutput" rows="4" readonly cols="70" style="float: right; border-radius: 10px;"></textarea>
+              </div>
+              <div style="float: left;  padding 5px;">
+                <h6 style="  width: 100%;">Std Error:</h6>
+                <textarea id="stderr" rows="4" cols="70" readonly style="float: right;  border-radius: 10px;"></textarea>
+              </div>
+             
+            </div>
+          </div>
+</div>
+
+<!-- END w3-content -->
+</div>
+<!-- Footer -->
+
+
+<footer class="w3-padding-32 w3-black w3-center w3-margin-top" style=" 
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  background-color: red;
+  color: white;
+  text-align: center;
+}">
+    <h5>Follow Us On</h5>
+    <div class="w3-xlarge w3-padding-16">
+      <i class="fa fa-facebook-official w3-hover-opacity"></i>
+      <i class="fa fa-instagram w3-hover-opacity"></i>
+      <i class="fa fa-snapchat w3-hover-opacity"></i>
+      <i class="fa fa-pinterest-p w3-hover-opacity"></i>
+      <i class="fa fa-twitter w3-hover-opacity"></i>
+      <i class="fa fa-linkedin w3-hover-opacity"></i>
+    </div>
+</footer>
+</body>
+
+</html>
+
